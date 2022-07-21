@@ -155,7 +155,7 @@ docker-compose up -d
 sleep 2
 
 cd $HOME/bundlr/validator-rust && \
-npm i -g @bundlr-network/testnet-cli
+npm i -g @bundlr-network/testnet-cli@latest
 
 sleep 2
 
