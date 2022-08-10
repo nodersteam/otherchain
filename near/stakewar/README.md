@@ -12,6 +12,7 @@ wget https://raw.githubusercontent.com/nodersteam/otherchain/main/near/stakewar/
 chmod +x $HOME/script/ping.sh
 ```
 In the script, change the name to the name of your wallet
+
 After that, run the crontab and set the ping once an hour
 ```
 crontab -e
