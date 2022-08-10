@@ -21,8 +21,8 @@ Insert into crontab
 0 * * * * /bin/bash $HOME/scripts/ping.sh
 ```
 Saving tasks
-ctrl + s
+#ctrl + s#
 And we leave
-ctrl + x
+#ctrl + x#
 
 You can track the logs by opening the all.logs file
