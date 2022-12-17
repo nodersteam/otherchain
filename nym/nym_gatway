@@ -166,14 +166,14 @@ break
 
 "Check log Client")
 
-journalctl -u nym-gateway -f -o cat
+journalctl -u nym-client -f -o cat
 
 break
 ;;
 
 "Check log Requester")
 
-journalctl -u nym-gateway -f -o cat
+journalctl -u nym-network-requester -f -o cat
 
 break
 ;;
