@@ -9,15 +9,13 @@ echo "==========================================================================
 curl -s https://raw.githubusercontent.com/nodersteam/script/main/Noders.sh | bash
 echo "========================================================================================================================"
 
-sleep 2
-
-# Menu
 
 PS3='Select an action: '
 options=("Set the required variables" "Build" "Run" "Check log GateWay" "Check log Client" "Check log Requester" "Exit")
+
 select opt in "${options[@]}"
-               do
-                   case $opt in                           
+do
+case $opt in                          
 
 "Set the required variables")
 echo "============================================================"
@@ -148,6 +146,8 @@ echo "DefaultLimitNOFILE=65535" >> /etc/systemd/system.conf
 sed -i.def "s|validator_api_urls.*|validator_api_urls = [\
 	'https://validator.nymtech.net/api/'|" $HOME/.nym/mixnodes/*/config/config.toml
 sudo tee <<EOF >/dev/null /etc/systemd/journald.conf
+Storage=persistent
+EOF
 
 systemctl daemon-reload
 service nym-gateway start
