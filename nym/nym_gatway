@@ -41,10 +41,11 @@ echo "Setup Client name:"
 echo "============================================================"
 read CLIENTNAME
 
-sudo dpkg --configure -a \
-sudo apt install ufw make clang pkg-config libssl-dev build-essential git -y -qq \
-sudo curl https://sh.rustup.rs -sSf | sh -s -- -y \
-source $HOME/.cargo/env \
+sudo dpkg --configure -a
+sudo apt install ufw make clang pkg-config libssl-dev build-essential git -y -qq < "/dev/null"
+sudo curl https://sh.rustup.rs -sSf | sh -s -- -y
+source $HOME/.cargo/env
+rustup update
 cd $HOME
 
 ufw version
