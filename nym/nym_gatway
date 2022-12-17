@@ -154,6 +154,10 @@ service nym-gateway start
 service nym-client start
 service nym-network-requester start
 
+echo "============================================================"
+echo "Don't forget to bond tokens to your GateWay"
+echo "============================================================"
+
 break
 ;;
 
