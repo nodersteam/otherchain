@@ -15,7 +15,6 @@ PS3='Select an action: '
 options=(
 "Prepare the server for installation"
 "Install SHARDEUM Node"
-
 "Exit")
 select opt in "${options[@]}"
                do
