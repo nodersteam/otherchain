@@ -12,7 +12,7 @@ echo "##########################################################################
 PS3='Select an action: '
 options=(
 "Prepare the server for installation"
-"Install shardeum Node"
+"Install Shardeum Node"
 "Stop and delite node"
 "Exit")
 select opt in "${options[@]}"
@@ -81,7 +81,7 @@ echo "##########################################################################
 break
 ;;
             
-"Install SHARDEUM Node")
+"Install Shardeum Node")
 echo "####################################################################################"
 echo "Set parameters"
 echo "####################################################################################"
