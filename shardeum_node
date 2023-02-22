@@ -4,8 +4,6 @@ while true
 do
 
 # Logo
-source ~/.bash_profile
-
 echo "#####################################################################################"
 curl -s https://raw.githubusercontent.com/nodersteam/script/main/shardeumlogo.sh | bash
 echo "#####################################################################################"
@@ -33,7 +31,7 @@ echo "Update and install APT and Dependency"
 echo "####################################################################################"
 sleep 3
 sudo apt-get install curl wget jq libpq-dev libssl-dev build-essential pkg-config openssl ocl-icd-opencl-dev -y \
-libopencl-clang-dev libgomp1 -y > /dev/null 2>&1
+libopencl-clang-dev libgomp1 -y \
 sudo apt install docker-compose > /dev/null 2>&1
 
 #INSTALL DOCKER
