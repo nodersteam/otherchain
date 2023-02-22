@@ -40,62 +40,40 @@ echo "##########################################################################
 echo "INSTALL DOCKER AND DOCKER-COMPOSE"
 echo "####################################################################################"
 sleep 3
-Check if Docker is installed
 if command -v docker >/dev/null 2>&1; then
-echo "Docker is already installed on this machine."
+  echo "Docker is already installed on this machine."
 else
-
-Installing Docker
-Update the apt package index
-sudo apt-get update
-
-Install the necessary packages to allow apt to use a repository over HTTPS
-sudo apt-get install -y
-apt-transport-https
-ca-certificates
-curl
-gnupg-agent
-software-properties-common
-
-Add Docker’s official GPG key
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-
-Verify that the key fingerprint is 9DC8 5822 9FC7 DD38 854A E2D8 8D81 803C 0EBF CD88
-sudo apt-key fingerprint 0EBFCD88
-
-Set up the stable Docker repository
-sudo add-apt-repository
-"deb [arch=amd64] https://download.docker.com/linux/ubuntu
-$(lsb_release -cs)
-stable"
-
-Update the apt package index
-sudo apt-get update
-
-Install the latest version of Docker CE
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+  echo "Installing Docker..."
+  sudo apt-get install curl gnupg apt-transport-https ca-certificates \
+  lsb-release -y && curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+  | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
+  echo "deb [arch=$(dpkg --print-architecture) \
+  signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] \
+  https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
+  | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null && \
+  sudo apt-get update && \
+  sudo apt-get install docker-ce docker-ce-cli containerd.io -y
+  echo "Docker has been successfully installed."
 fi
 
-Check if Docker Compose is installed
+#Check if Docker Compose is installed
 if command -v docker-compose >/dev/null 2>&1; then
+echo "####################################################################################"
 echo "Docker Compose is already installed on this machine."
+echo "####################################################################################"
 else
 
-Installing Docker Compose
-Download the Docker Compose binary
+#Installing Docker Compose
+#Download the Docker Compose binary
 sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 
-Apply executable permissions to the Docker Compose binary
+#Apply executable permissions to the Docker Compose binary
 sudo chmod +x /usr/local/bin/docker-compose
 fi
 
-Verify the installation of Docker and Docker Compose
-echo "####################################################################################"
-echo "Docker version:"
+#Verify the installation of Docker and Docker Compose
 echo "####################################################################################"
 docker --version
-echo "####################################################################################"
-echo "Docker Compose version:"
 echo "####################################################################################"
 docker-compose --version
 echo "####################################################################################"
