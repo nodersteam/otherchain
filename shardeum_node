@@ -27,15 +27,30 @@ echo "Preparation has begun"
 echo "============================================================"
 
 #DEPENDENCY INSTALLATION
-slepp 3
 echo "============================================================"
 echo "Update and install APT and Dependency"
 echo "============================================================"
 sleep 3
-sudo apt-get install curl wget jq libpq-dev libssl-dev \
-build-essential pkg-config openssl ocl-icd-opencl-dev \
+# Total number of steps
+total_steps=3
+
+# Current step
+current_step=0
+
+# Step 1
+sudo apt-get install curl wget jq libpq-dev libssl-dev build-essential pkg-config openssl ocl-icd-opencl-dev -y \
 libopencl-clang-dev libgomp1 -y
-apt install docker-compose
+current_step=$((current_step + 1))
+percentage=$(( 100 * current_step / total_steps ))
+printf "Progress: [%-${total_steps}s] %d%%\r" "$(yes "=" | head -n $percentage | tr -d '[:space:]')" $percentage
+
+# Step 2
+sudo apt install docker-compose
+current_step=$((current_step + 1))
+percentage=$(( 100 * current_step / total_steps ))
+printf "Progress: [%-${total_steps}s] %d%%\r" "$(yes "=" | head -n $percentage | tr -d '[:space:]')" $percentage
+
+echo "Progress: [$(yes "=" | head -n $total_steps | tr -d '[:space:]')] 100%"
 
 #INSTALL DOCKER
 sleep 3
