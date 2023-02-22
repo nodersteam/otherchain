@@ -102,8 +102,6 @@ then
 fi
 
 
-# Check all things that will be needed for this script to succeed like access to docker and docker-compose
-# If any check fails exit with a message on what the user needs to do to fix the problem
 command -v git >/dev/null 2>&1 || { echo >&2 "'git' is required but not installed."; exit 1; }
 command -v docker >/dev/null 2>&1 || { echo >&2 "'docker' is required but not installed. See https://gitlab.com/shardeum/validator/dashboard/-/tree/dashboard-gui-nextjs#how-to for details."; exit 1; }
 if command -v docker-compose &>/dev/null; then
@@ -117,7 +115,6 @@ fi
 
 export DOCKER_DEFAULT_PLATFORM=linux/amd64
 
-docker-safe() {
   if ! command -v docker &>/dev/null; then
     echo "docker is not installed on this machine"
     exit 1
@@ -127,9 +124,7 @@ docker-safe() {
     echo "Trying again with sudo..."
     sudo docker $@
   fi
-}
 
-docker-compose-safe() {
   if command -v docker-compose &>/dev/null; then
     cmd="docker-compose"
   elif docker --help | grep -q "compose"; then
@@ -143,9 +138,8 @@ docker-compose-safe() {
     echo "Trying again with sudo..."
     sudo $cmd $@
   fi
-}
 
-get_ip() {
+
   local ip
   if command -v ip >/dev/null; then
     ip=$(ip addr show $(ip route | awk '/default/ {print $5}') | awk '/inet/ {print $2}' | cut -d/ -f1)
@@ -156,9 +150,7 @@ get_ip() {
     return 1
   fi
   echo $ip
-}
 
-get_external_ip() {
   external_ip=''
   external_ip=$(curl -s https://api.ipify.org)
   if [[ -z "$external_ip" ]]; then
@@ -179,9 +171,8 @@ get_external_ip() {
     fi
   fi
   echo $external_ip
-}
 
-if [[ $(docker-safe info 2>&1) == *"Cannot connect to the Docker daemon"* ]]; then
+if [[ $(docker  info 2>&1) == *"Cannot connect to the Docker daemon"* ]]; then
     echo "Docker daemon is not running"
     exit 1
 else
@@ -246,20 +237,6 @@ done
 read -p "What base directory should the node use (defaults to ~/.shardeum): " NODEHOME
 NODEHOME=${NODEHOME:-~/.shardeum}
 
-# PS3='Select a network to connect to: '
-# options=("betanet")
-# select opt in "${options[@]}"
-# do
-#     case $opt in
-#         "betanet")
-#             APPSEEDLIST="18.192.49.22"
-#             APPMONITOR="3.76.28.10"
-#             break
-#             ;;
-#         *) echo "invalid option $REPLY";;
-#     esac
-# done
-
 APPSEEDLIST="archiver-sphinx.shardeum.org"
 APPMONITOR="monitor-sphinx.shardeum.org"
 
@@ -309,7 +286,6 @@ cat <<EOF
 # 3. Clearing Old Images #
 ##########################
 
-docker-safe() {
   if ! command -v docker &>/dev/null; then
     echo "docker is not installed on this machine"
     exit 1
@@ -319,12 +295,31 @@ docker-safe() {
     echo "Trying again with sudo..."
     sudo docker $@
   fi
-}
 
-#rm ./output.log
 
 echo "down exiting stack"
-./docker-down.sh
+  if command -v docker-compose &>/dev/null; then
+    cmd="docker-compose"
+  elif docker --help | grep -q "compose"; then
+    cmd="docker compose"
+  else
+    echo "docker-compose or docker compose is not installed on this machine"
+    exit 1
+  fi
+
+  if ! $cmd $@; then
+    echo "Trying again with sudo..."
+    sudo $cmd $@
+  fi
+
+docker-compose ps | grep -q "Up"
+if [ $? -eq 0 ]; then
+  echo "Docker Compose project is up"
+  docker-compose-safe -f docker-compose.yml down
+else
+  echo "Docker Compose project is not up"
+fi
+
 
 echo "delete existing image"
 docker-safe rmi -f test-dashboard
@@ -359,7 +354,7 @@ else
   sed -i "s/- '9001-9010:9001-9010'/- '$SHMEXT:$SHMEXT'/" docker-compose.yml
   sed -i "s/- '10001-10010:10001-10010'/- '$SHMINT:$SHMINT'/" docker-compose.yml
 fi
-docker-compose-safe() {
+
   if command -v docker-compose &>/dev/null; then
     cmd="docker-compose"
   elif docker --help | grep -q "compose"; then
@@ -373,13 +368,12 @@ docker-compose-safe() {
     echo "Trying again with sudo..."
     sudo $cmd $@
   fi
-}
 
-docker-compose-safe -f docker-compose.yml up -d
+docker-compose -f docker-compose.yml up -d
 
 
 echo "Starting image. This could take a while..."
-(docker-safe logs -f shardeum-dashboard &) | grep -q 'done'
+(docker logs -f shardeum-dashboard &) | grep -q 'done'
 
 #Do not indent
 if [ $RUNDASHBOARD = "y" ]
@@ -408,7 +402,7 @@ break
 ;;
 
 "Stop and delite node")
-docker-compose-safe() {
+
   if command -v docker-compose &>/dev/null; then
     cmd="docker-compose"
   elif docker --help | grep -q "compose"; then
@@ -422,7 +416,6 @@ docker-compose-safe() {
     echo "Trying again with sudo..."
     sudo $cmd $@
   fi
-}
 
 docker-compose-safe ps | grep -q "Up"
 if [ $? -eq 0 ]; then
@@ -432,7 +425,6 @@ else
   echo "Docker Compose project is not up"
 fi
 
-docker-safe() {
   if ! command -v docker &>/dev/null; then
     echo "docker is not installed on this machine"
     exit 1
@@ -442,7 +434,6 @@ docker-safe() {
     echo "Trying again with sudo..."
     sudo docker $@
   fi
-}
 
 echo "delete existing image"
 docker-safe rmi -f test-dashboard
