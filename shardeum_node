@@ -13,6 +13,7 @@ PS3='Select an action: '
 options=(
 "Prepare the server for installation"
 "Install Shardeum Node"
+"Dashboard addres"
 "Stop and delite node"
 "Exit")
 select opt in "${options[@]}"
@@ -43,15 +44,12 @@ if command -v docker >/dev/null 2>&1; then
   echo "Docker is already installed on this machine."
 else
   echo "Installing Docker..."
-  sudo apt-get install curl gnupg apt-transport-https ca-certificates \
-  lsb-release -y && curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
-  | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
-  echo "deb [arch=$(dpkg --print-architecture) \
-  signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] \
-  https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
-  | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null && \
-  sudo apt-get update && \
-  sudo apt-get install docker-ce docker-ce-cli containerd.io -y >/dev/null 2>&1
+sudo apt-get install curl gnupg apt-transport-https ca-certificates lsb-release -y \
+&& curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg \
+&& echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
+| sudo tee /etc/apt/sources.list.d/docker.list > /dev/null \
+&& sudo apt-get update \
+&& sudo apt-get install docker-ce docker-ce-cli containerd.io -y >/dev/null 2>&1
   echo "Docker has been successfully installed."
 fi
 
@@ -291,61 +289,9 @@ EOL
 
 cat <<EOF
 
-##########################
-# 3. Clearing Old Images #
-##########################
-
-EOF
-
-docker-safe() {
-  if ! command -v docker &>/dev/null; then
-    echo "docker is not installed on this machine"
-    exit 1
-  fi
-
-  if ! docker $@; then
-    echo "Trying again with sudo..."
-    sudo docker $@
-  fi
-}
-
-echo "down exiting stack"
-docker-compose-safe() {
-  if command -v docker-compose &>/dev/null; then
-    cmd="docker-compose"
-  elif docker --help | grep -q "compose"; then
-    cmd="docker compose"
-  else
-    echo "docker-compose or docker compose is not installed on this machine"
-    exit 1
-  fi
-
-  if ! $cmd $@; then
-    echo "Trying again with sudo..."
-    sudo $cmd $@
-  fi
-}
-
-docker-compose-safe ps | grep -q "Up"
-if [ $? -eq 0 ]; then
-  echo "Docker Compose project is up"
-  docker-compose-safe -f docker-compose.yml down
-else
-  echo "Docker Compose project is not up"
-fi
-
-
-echo "delete existing image"
-docker-safe rmi -f test-dashboard
-docker-safe rmi -f registry.gitlab.com/shardeum/server
-
-echo "done."
-
-
-cat <<EOF
 
 ##########################
-# 4. Building base image #
+# 3. Building base image #
 ##########################
 
 EOF
@@ -356,7 +302,7 @@ docker-safe build --no-cache -t test-dashboard -f Dockerfile --build-arg RUNDASH
 cat <<EOF
 
 ############################
-# 5. Start Compose Project #
+# 4. Start Compose Project #
 ############################
 
 EOF
@@ -419,7 +365,44 @@ EOF
 break
 ;;
 
+"Dashboard addres")
+
+echo "Copy this address and paste it in the browser window. The dashboard will open where you need to start the node and perform a stake"
+DASHBORDADDRESS=$(wget -qO- eth0.me):8080
+
+echo https://$DASHBORDADDRESS
+break
+;;
+
 "Stop and delite node")
+
+docker-compose-safe() {
+  if command -v docker-compose &>/dev/null; then
+    cmd="docker-compose"
+  elif docker --help | grep -q "compose"; then
+    cmd="docker compose"
+  else
+    echo "docker-compose or docker compose is not installed on this machine"
+    exit 1
+  fi
+
+  if ! $cmd $@; then
+    echo "Trying again with sudo..."
+    sudo $cmd $@
+  fi
+}
+cd $HOME/.shardeum
+
+docker-compose-safe ps | grep -q "Up"
+if [ $? -eq 0 ]; then
+  echo "Docker Compose project is up"
+  docker-compose-safe -f docker-compose.yml down
+  cd
+  rm -rf $HOME/.shardeum
+else
+  echo "Docker Compose project is not up"
+fi
+
 
 break
 ;;
